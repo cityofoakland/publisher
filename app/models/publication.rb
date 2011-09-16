@@ -16,7 +16,7 @@ class Publication
   field :archived,        :type => Boolean
 
   field :section,         :type => String
-  field :related_items,   :type => Array
+  field :related_items,   :type => Array, :default => []
   
   embeds_many :publishings
 
@@ -59,6 +59,7 @@ class Publication
 
   def set_related_item number, value
     delete_related_item number
+    self.related_items ||= []
     related_items << [ number, value ]
   end
   private :set_related_item

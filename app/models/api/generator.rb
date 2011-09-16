@@ -29,13 +29,15 @@ module Api
 
     module RelatedItems
       def self.for publication
+        return unless publication.related_items.present?
         related_items = StringIO.new
         html = Builder::XmlMarkup.new :target => related_items
-        publication.related_items.each do |slug|
+        publication.related_items.sort_by { |order, slug| order }.each do |order, slug|
           related_item = RelatedItem.find slug
           next unless related_item.present?
           next unless related_item.published?
-          html.li class: related_item.format do |item|
+          related_item_class = [ related_item.format, 'related_item' ].join ' '
+          html.li class: related_item_class do |item|
             item.a href: related_item.path do |a|
               a.text! related_item.name
             end
