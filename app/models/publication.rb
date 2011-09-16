@@ -1,4 +1,6 @@
 class Publication
+  MAXIMUM_RELATED_ITEMS = 6.freeze
+
   include Mongoid::Document
   include Mongoid::Timestamps
 
@@ -33,6 +35,48 @@ class Publication
   validates :slug, :presence => true, :uniqueness => true, :panopticon_slug => { :if => proc { |p| p.slug_changed? } }
 
   accepts_nested_attributes_for :editions, :reject_if => proc { |a| a['title'].blank? }
+
+  def related_item_number number
+    item = related_items.detect { |item| item[0] == number }
+    return unless item.present?
+    item[-1]
+  end
+  private :related_item_number
+
+  def delete_related_item number
+    return unless related_item_number(number).present?
+    index = related_item_offset(number)
+    related_items.delete index
+  end
+  private :delete_related_item
+
+  def related_item_offset number
+    related_items.each_with_index do |item, offset|
+      return offset if item[0] == number
+    end
+  end
+  private :related_item_offset
+
+  def set_related_item number, value
+    delete_related_item number
+    related_items << [ number, value ]
+  end
+  private :set_related_item
+
+  MAXIMUM_RELATED_ITEMS.times do |related_item_offset|
+    related_item = "related_item_#{related_item_offset}"
+    define_method related_item do
+      related_item_number related_item_offset
+    end
+
+    define_method "#{related_item}=" do |value|
+      if value
+        set_related_item related_item_offset, value
+      else
+        delete_related_item related_item_offset
+      end
+    end
+  end
 
   def build_edition(title)
     version_number = self.editions.length + 1
