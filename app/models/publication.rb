@@ -34,13 +34,6 @@ class Publication
 
   accepts_nested_attributes_for :editions, :reject_if => proc { |a| a['title'].blank? }
 
-  def related
-    return [] if related_items.blank?
-    fragment = Nokogiri::XML related_items
-    links = fragment.css "a"
-    links.to_a.map { |link| link.text.to_s.strip }
-  end
-
   def build_edition(title)
     version_number = self.editions.length + 1
     edition = self.class.edition_class.new(:title=> title, :version_number=>version_number)
