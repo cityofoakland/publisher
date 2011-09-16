@@ -4,7 +4,7 @@
     <%= f.input :slug, :hint => true %>
     <%= f.input :tags, :hint => true %>
     <%= f.input :section, :as => :select, :collection => Guide::SECTIONS %>
-    <%= f.input :related_items, :as => :text, :label => "Related items", :input_html => {:rows => 4} %>
+    <%= f.input :related_items, :as => :select, :collection => RelatedItem.all, :input_html => { :multiple => true }, :include_blank => false %>
     <%= f.input :audiences, :as => :check_boxes, :collection => Guide::AUDIENCES %>
   <% end %>
 <% end %>

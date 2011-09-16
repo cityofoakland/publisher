@@ -51,3 +51,5 @@ module Publisher
     config.filter_parameters += [:password]
   end
 end
+
+require 'external_services'
