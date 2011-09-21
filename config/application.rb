@@ -53,3 +53,4 @@ module Publisher
 end
 
 require 'external_services'
+require 'open-uri'

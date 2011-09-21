@@ -32,9 +32,10 @@ class ActiveSupport::TestCase
   set_callback :teardown, :before, :clean_db
   
   def without_panopticon_validation(&block)
-    PanopticonSlugValidator.any_instance.stubs(:validate).returns(true)
+    # TODO: This should stub out the Panopticon API
+    # TODO: This should be called somethig like without_panopticon_notification
+    # TODO: Everything sould notify Panopticon when it changes
     yield
-    PanopticonSlugValidator.any_instance.unstub(:validate)
   end
 end
 

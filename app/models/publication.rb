@@ -1,8 +1,8 @@
 class Publication
-  MAXIMUM_RELATED_ITEMS = 6.freeze
-
   include Mongoid::Document
   include Mongoid::Timestamps
+
+  field :panopticon_id,   :type => Integer
 
   field :name,            :type => String
   field :slug,            :type => String
@@ -16,8 +16,8 @@ class Publication
   field :archived,        :type => Boolean
 
   field :section,         :type => String
-  field :related_items,   :type => Array, :default => []
-  
+  field :related_items,   :type => String
+
   embeds_many :publishings
 
   scope :in_draft,         where(has_drafts: true)
@@ -29,54 +29,24 @@ class Publication
   after_initialize :create_first_edition
 
   before_save :calculate_statuses
-  before_destroy :release_slug
-  
+
   validates_presence_of :name
-  validates :slug, :presence => true, :uniqueness => true, :panopticon_slug => { :if => proc { |p| p.slug_changed? } }
 
   accepts_nested_attributes_for :editions, :reject_if => proc { |a| a['title'].blank? }
 
-  def related_item_number number
-    item = related_items.detect { |item| item[0] == number }
-    return unless item.present?
-    item[-1]
-  end
-  private :related_item_number
-
-  def delete_related_item number
-    return unless related_item_number(number).present?
-    index = related_item_offset(number)
-    related_items.delete index
-  end
-  private :delete_related_item
-
-  def related_item_offset number
-    related_items.each_with_index do |item, offset|
-      return offset if item[0] == number
-    end
-  end
-  private :related_item_offset
-
-  def set_related_item number, value
-    delete_related_item number
-    self.related_items ||= []
-    related_items << [ number, value ]
-  end
-  private :set_related_item
-
-  MAXIMUM_RELATED_ITEMS.times do |related_item_offset|
-    related_item = "related_item_#{related_item_offset}"
-    define_method related_item do
-      related_item_number related_item_offset
+  def self.import panopticon_id
+    uri = Plek.current.panopticon + '/artefacts/' + panopticon_id + '.js'
+    data = open(uri).read
+    json = JSON.parse data
+    publication = Publication.where(slug: json['slug']).first
+    if publication
+      publication.panopticon_id = json['id']
+      publication.save!
+      return publication
     end
 
-    define_method "#{related_item}=" do |value|
-      if value
-        set_related_item related_item_offset, value
-      else
-        delete_related_item related_item_offset
-      end
-    end
+    kind = json['kind']
+    kind.classify.constantize.create! :panopticon_id => json['id'], :name => json['name']
   end
 
   def build_edition(title)
@@ -101,7 +71,7 @@ class Publication
     all_versions = ::Set.new(editions.map(&:version_number))
     drafts = (all_versions - published_versions)
     self.has_drafts = drafts.any?
-    
+
     self.has_fact_checking = editions.any? { |e| e.latest_action && e.latest_action.request_type == Action::FACT_CHECK_REQUESTED }
 
     self.has_reviewables = editions.any? {|e| e.latest_action && e.latest_action.request_type == Action::REVIEW_REQUESTED }
@@ -137,10 +107,6 @@ class Publication
 
   def title
     self.name || latest_edition.title
-  end
-  
-  def release_slug
-    PanopticonApi.new(:slug => self.slug).destroy
   end
 
   AUDIENCES = [
@@ -189,7 +155,7 @@ class Publication
     'Money',
     'Taxes',
     'Benefits and schemes',
-    'Driving', 
+    'Driving',
     'Housing',
     'Communities',
     'Pensions',
