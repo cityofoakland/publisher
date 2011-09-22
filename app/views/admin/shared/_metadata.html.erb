@@ -1,1 +1,3 @@
-<%= link_to "Jump to Panopticon", Plek.current.panopticon + '/artefacts/' + (publication.panopticon_id || publication.slug).to_s + '/edit' %>
+<%= publication.metadata.to_html %>
+
+<%= link_to "Edit in Panopticon", publication.panopticon_uri + '/edit' %>

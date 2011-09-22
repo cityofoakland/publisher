@@ -39,14 +39,18 @@ class Publication
     data = open(uri).read
     json = JSON.parse data
     publication = Publication.where(slug: json['slug']).first
-    if publication
-      publication.panopticon_id = json['id']
-      publication.save!
-      return publication
-    end
+    return publication if publication.present?
 
     kind = json['kind']
     kind.classify.constantize.create! :panopticon_id => json['id'], :name => json['name']
+  end
+
+  def panopticon_uri
+    Plek.current.panopticon + '/artefacts/' + (panopticon_id || slug).to_s
+  end
+
+  def metadata
+    PublicationMetadata.new self
   end
 
   def build_edition(title)
