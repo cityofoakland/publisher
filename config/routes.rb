@@ -33,8 +33,6 @@ Publisher::Application.routes.draw do
 
     resources :publications
 
-    match 'google_insight' => 'seo#google_insight'
-
     root :to => 'root#index'
   end
 
