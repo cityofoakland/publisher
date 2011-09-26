@@ -89,9 +89,15 @@ class Publication
   end
 
   def publish(edition, notes)
+    denormalise_metadata
     self.publishings << Publishing.new(:version_number=>edition.version_number,:change_notes=>notes)
     calculate_statuses
   end
+
+  def denormalise_metadata
+    meta_data.apply_to self
+  end
+  private :denormalise_metadata
 
   def published_edition
     latest_publishing = self.publishings.sort_by(&:version_number).last

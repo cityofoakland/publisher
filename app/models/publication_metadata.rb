@@ -52,6 +52,31 @@ class PublicationMetadata
     end
   end
 
+  def apply_to publication
+    publication.name = attributes['name']
+    publication.slug = attributes['slug']
+    publication.tags = attributes['tags']
+    publication.audiences = attributes['audiences'].map { |a| a['name'] }
+    publication.section = attributes['section']
+
+    slugs = attributes['related_items'].map do |i|
+      a = i['artefact']
+      [ i['sort_key'], a['slug'], a['name'], a['kind'] ]
+    end
+    related_items = StringIO.new
+    html = Builder::XmlMarkup.new :target => related_items
+    slugs.sort_by { |order, slug, name, format| order }.each do |order, slug, name, format|
+      related_item_class = [ format, 'related_item' ].join ' '
+      html.li class: format do |item|
+        item.a href: '/' + slug do |a|
+          a.text! name
+        end
+      end
+    end
+    related_items.rewind
+    publication.related_items = related_items.string
+  end
+
   def attributes
     data = JSON.parse open(uri).read
     data.except('updated_at', 'created_at', 'id', 'owning_app', 'kind', 'active')
