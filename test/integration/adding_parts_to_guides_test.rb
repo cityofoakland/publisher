@@ -26,8 +26,12 @@ class AddingPartsToGuidesTest < ActionDispatch::IntegrationTest
 
      random_name = (0...8).map{65.+(rand(25)).chr}.join + " GUIDE"
 
-     guide = Guide.new :name => random_name, :slug => 'test-guide'
+     guide = Guide.new :name => random_name, :slug => 'test-guide', :panopticon_id => 2356
      guide.save!
+
+     stub_request(:get, "http://panopticon.test.gov.uk/artefacts/2356.js").
+       to_return(:status => 200, :body => "{}", :headers => {})
+
      visit    "/admin/guides/#{guide.to_param}"
 
      click_on 'Untitled part'

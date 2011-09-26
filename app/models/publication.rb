@@ -34,7 +34,7 @@ class Publication
 
   accepts_nested_attributes_for :editions, :reject_if => proc { |a| a['title'].blank? }
 
-  def self.import panopticon_id
+  def self.import panopticon_id, importing_user
     uri = Plek.current.panopticon + '/artefacts/' + panopticon_id + '.js'
     data = open(uri).read
     json = JSON.parse data
@@ -47,7 +47,7 @@ class Publication
     end
 
     kind = json['kind']
-    kind.classify.constantize.create! :panopticon_id => json['id'], :name => json['name']
+    importing_user.send "create_#{kind}", :panopticon_id => json['id'], :name => json['name']
   end
 
   def panopticon_uri

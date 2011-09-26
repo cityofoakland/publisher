@@ -25,17 +25,19 @@ class ActiveSupport::TestCase
   # fixtures :all
 
   # Add more helper methods to be used by all tests here...
-  
+
   def clean_db
     DatabaseCleaner.clean
   end
   set_callback :teardown, :before, :clean_db
-  
+
   def without_panopticon_validation(&block)
-    # TODO: This should stub out the Panopticon API
-    # TODO: This should be called somethig like without_panopticon_notification
-    # TODO: Everything sould notify Panopticon when it changes
     yield
+  end
+
+  teardown do
+    WebMock.reset!
+    DatabaseCleaner.clean
   end
 end
 

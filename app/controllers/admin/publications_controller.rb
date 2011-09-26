@@ -6,6 +6,6 @@ class Admin::PublicationsController < ApplicationController
   end
 
   def import_publication panopticon_id
-    Publication.import panopticon_id
+    Publication.import panopticon_id, current_user
   end
 end
