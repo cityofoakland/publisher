@@ -47,7 +47,9 @@ class Publication
     end
 
     kind = json['kind']
-    importing_user.send "create_#{kind}", :panopticon_id => json['id'], :name => json['name']
+    publication = importing_user.send "create_#{kind}", :panopticon_id => json['id'], :name => json['name']
+    publication.save!
+    publication
   end
 
   def panopticon_uri
@@ -178,5 +180,4 @@ class Publication
     'Travel',
     'Citizenship'
   ]
-
 end
