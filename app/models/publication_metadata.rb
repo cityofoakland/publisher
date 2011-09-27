@@ -38,16 +38,19 @@ class PublicationMetadata
 
   def to_html
     html do |metadata|
-      attributes.each_pair do |name, value|
-        metadata.dt(:class => name) { |term| term.text! name.humanize }
-        presenter_name = name.classify
-        presenter_name += 'List' if value.kind_of? Array
-        if self.class.const_defined? presenter_name
-          presenter = self.class.const_get presenter_name
-          instance = presenter.new value
-          value = instance.to_html
+      metadata.dl do |dl|
+        attributes.each_pair do |name, value|
+          presenter_name = name.classify
+          presenter_name += 'List' if value.kind_of? Array
+          if self.class.const_defined? presenter_name
+            presenter = self.class.const_get presenter_name
+            instance = presenter.new value
+            value = instance.to_html
+          end
+          next if value.to_s.blank?
+          dl.dt { |term| term.text! name.humanize }
+          dl.dd { |definition| definition.text! value.to_s }
         end
-        metadata.dd(:class => name) { |definition| definition.text! value.to_s }
       end
     end
   end
