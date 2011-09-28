@@ -56,6 +56,7 @@ class PublicationMetadata
   end
 
   def apply_to publication
+    attributes = load_attributes
     publication.name = attributes['name']
     publication.slug = attributes['slug']
     publication.tags = attributes['tags']
@@ -84,9 +85,15 @@ class PublicationMetadata
     end
   end
 
-  def attributes
+  def load_attributes
     data = JSON.parse open(uri).read
     data.except('updated_at', 'created_at', 'id', 'owning_app', 'kind', 'active')
+  end
+
+  def attributes
+    load_attributes
+  rescue OpenURI::HTTPError
+    {}
   end
   private :attributes
 
