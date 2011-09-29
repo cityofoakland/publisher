@@ -2,11 +2,6 @@
   <div class="edition">
     <div class="buttons group">
       <h3>Version <%= edition.version_number %></h3>
-      <div class="check">
-        <%= link_to 'Preview', preview_edition_path(edition) %>
-        <%= button_to 'Diff' %>
-        <%= button_to 'Diff with latest' %>
-      </div>
     </div>
     <ul class="history">
       <% edition.actions.each do |action| %>
