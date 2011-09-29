@@ -1,7 +1,7 @@
 <% publication.editions.each do |edition| %>
   <div class="edition">
     <div class="buttons group">
-      <h3>v<%= edition.version_number %></h3>
+      <h3>Version <%= edition.version_number %></h3>
       <div class="check">
         <%= link_to 'Preview', preview_edition_path(edition) %>
         <%= button_to 'Diff' %>
@@ -12,15 +12,23 @@
       <% edition.actions.each do |action| %>
       <% if action.requester %>
       <li>
-        <p>
+        <div class="action-time">
+          <p><span class="visuallyhidden">Version created on</span> <span class="time"><%= action.created_at.strftime("%d/%m/%Y") %></span> <span class="visuallyhidden">at</span> <%= action.created_at.strftime("%R") %></p>
+        </div>
+
+        <div>
+          <p><span class="action-by"><%= action.to_s %></span> by
+          <%= mail_to action.requester.email, action.requester.name %></p>
+        </div>
+
+        <div class="action-comment">
           <%= image_tag action.requester.gravatar_url, :alt => action.requester.to_s %>
-          <%= action.to_s %>
-        </p>
-        <p><%= mail_to action.requester.email, action.requester.name %></p>
-        <p class="action-time"><%= action.created_at.strftime("%d/%m/%Y %R") %></p>
-        <% if action.comment.present? %>
-        <blockquote><%= action.comment %></blockquote>
-        <% end %>
+          <% if action.comment.present? %>
+          <blockquote>
+            <span><%= action.comment %></span>
+          </blockquote>
+          <% end %>
+        </div>
       </li>
       <% end %>
       <% end %>
