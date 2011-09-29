@@ -1,10 +1,10 @@
-<% publication.editions.each do |edition| %>
+<% publication.editions.reverse.each do |edition| %>
   <div class="edition">
     <div class="buttons group">
       <h3>Version <%= edition.version_number %></h3>
     </div>
     <ul class="history">
-      <% edition.actions.each do |action| %>
+      <% edition.actions.reverse.each do |action| %>
       <% if action.requester %>
       <li>
         <div class="action-time">
