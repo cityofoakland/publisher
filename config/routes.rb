@@ -27,6 +27,7 @@ Publisher::Application.routes.draw do
   end
 
   resources :publications, :only => [:show,:index,:destroy]
+  resources :editions, :only => :show
   resources :local_transactions, :only => :show do
     member do
       get '/all(.:format)', :to => :all
