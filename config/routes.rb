@@ -26,8 +26,8 @@ Publisher::Application.routes.draw do
     root :to => 'root#index'
   end
 
-  resources :publications, :only => [:show,:index,:destroy]
   resources :editions, :only => :show
+  resources :publications, :only => :show
   resources :local_transactions, :only => :show do
     member do
       get '/all(.:format)', :to => :all

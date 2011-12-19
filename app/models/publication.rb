@@ -30,7 +30,9 @@ class Publication
   scope :ready,               where('editions.state' => 'ready')
   scope :published,           where('editions.state' => 'published')
   scope :archived,            where('editions.state' => 'archived')
-  scope :assigned_to, lambda { |user| assignment_filter(user) }
+  scope :assigned_to,         lambda { |user| user.nil? ? where(:"editions.assigned_to_id".exists => false) : where('editions.assigned_to_id' => user.id) }
+
+  index "editions.assigned_to_id"
 
   after_initialize :create_first_edition
 
@@ -38,24 +40,6 @@ class Publication
   after_destroy :remove_from_search_index
 
   accepts_nested_attributes_for :editions, :reject_if => proc { |a| a['title'].blank? }
-
-  SECTIONS = [
-    'Rights',
-    'Justice',
-    'Education and skills',
-    'Work',
-    'Family',
-    'Money',
-    'Taxes',
-    'Benefits and schemes',
-    'Driving',
-    'Housing',
-    'Communities',
-    'Pensions',
-    'Disabled people',
-    'Travel',
-    'Citizenship'
-  ]
 
   # map each edition state to a "has_{state}?" method
   Edition.state_machine.states.map(&:name).each do |state|
@@ -98,25 +82,6 @@ class Publication
     else
       publication.published_edition
     end
-  end
-
-  def self.assignment_filter(user)
-    expr = if user
-             %{assignment && assignment.recipient_id == "#{user.id}"}
-           else
-             %{!assignment}
-           end
-    where(%{
-      function(){
-        var last = function(a){ return a && a[a.length - 1]; }
-        var edition = last(this.editions);
-        if (!edition) { return false; }
-        var assignment = last((edition.actions || []).filter(function(a){
-          return a.request_type == "#{Action::ASSIGN}";
-        }));
-        return #{expr};
-      }
-    })
   end
 
   def panopticon_uri
@@ -185,6 +150,10 @@ class Publication
     false
   end
 
+  def safe_to_preview?
+    true
+  end
+
   def latest_edition
     self.editions.sort_by(&:version_number).last
   rescue
@@ -210,8 +179,8 @@ class Publication
     }
   end
 
-  def self.search_index_published
-    published.map(&:search_index)
+  def self.search_index_all
+    all.map(&:search_index)
   end
 
   private
@@ -221,7 +190,6 @@ class Publication
       false
     end
   end
-
 
   def update_in_search_index
     Rummageable.index self.search_index

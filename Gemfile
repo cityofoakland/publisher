@@ -13,10 +13,7 @@ group :passenger_compatibility do
   gem 'rake', '0.9.2'
 end
 
-gem 'rails', '3.1.1'
-
-# Bundle edge Rails instead:
-# gem 'rails', :git => 'git://github.com/rails/rails.git'
+gem 'rails', '3.1.3'
 
 gem "mongoid", "~> 2.3"
 gem "mongo", "1.4"
@@ -28,7 +25,7 @@ gem 'marples', '1.0.4'
 gem 'null_logger'
 gem 'rummageable', :git => 'git@github.com:alphagov/rummageable.git'
 gem 'daemonette', :git => 'git@github.com:alphagov/daemonette.git'
-gem 'gds-api-adapters', '~> 0.0.7'
+gem 'gds-api-adapters', '~> 0'
 
 gem 'rest-client'
 
