@@ -82,13 +82,12 @@ module Api
       def self.edition_to_hash(attrs, edition, options = {})
         snac = options[:snac]
         all  = options[:all]
-        if snac || all
-          las = edition.local_transaction.lgsl.authorities
-          if snac
-            attrs['authority'] = authority_to_json(las.where(snac: snac).first)
-          elsif all
-            attrs['authorities'] = authority_to_json(las.all)
-          end
+        if snac
+          # local_transaction = edition.container
+          # attrs['authority'] = authority_to_json(las.where(snac: snac).first)
+          # elsif all
+          #   attrs['authorities'] = authority_to_json(las.all)
+          # end
         end
         attrs
       end

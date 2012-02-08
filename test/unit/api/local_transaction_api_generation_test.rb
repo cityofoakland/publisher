@@ -1,20 +1,23 @@
 require 'test_helper'
 
-class LocalTransactionGenerationTest < ActiveSupport::TestCase
+class LocalTransactionApiGenerationTest < ActiveSupport::TestCase
   setup do
     @updated_time = Time.now
-    @local_transaction = LocalTransaction.new(slug: 'test_slug', tags: 'tag, other', :lgsl => lgsl, :lgsl_code => @lgsl.code)
+    @lgsl_code = '149'
+    @snac_code = @snac_code
+    @county_council = LocalAuthority.create(
+      name: "Some County Council", 
+      snac: @snac_code, 
+      local_directgov_id: 1, 
+      tier: 'county'
+    )
+    @county_council.local_service_urls.create!(
+      url: 'http://some.county.council.gov/do.html',
+      lgsl_code: @lgsl_code,
+      lgil_code: 8)
+    @local_transaction = LocalTransaction.new(slug: 'test_slug', tags: 'tag, other', :lgsl_code => @lgsl_code)
     @local_transaction.editions.first.attributes = {version_number: 1, title: 'Test local transaction', updated_at: @updated_time}
     @edition = @local_transaction.editions.first
-  end
-
-  def lgsl
-    return @lgsl if @lgsl
-    @lgsl = LocalTransactionsSource::Lgsl.new(code: "149")
-    authority = LocalTransactionsSource::Authority.new(snac: "00BC", name: "Authority")
-    authority.lgils << LocalTransactionsSource::Lgil.new(code: "8", url: "http://authority.gov.uk/service")
-    @lgsl.authorities << authority
-    @lgsl
   end
 
   def generated(*args)
@@ -34,22 +37,22 @@ class LocalTransactionGenerationTest < ActiveSupport::TestCase
   end
 
   test "generated hash for result page has the authority" do
-    assert generated(:snac => "00BC").has_key?('authority')
+    assert generated(:snac => @snac_code).has_key?('authority')
   end
 
   test "generated hash for result page has the authorities' name" do
-    assert "Authority", generated(:snac => "00BC")['authority']['name']
+    assert "Authority", generated(:snac => @snac_code)['authority']['name']
   end
 
   test "generated hash for result page has the authorities' snac code" do
-    assert "00BC", generated(:snac => "00BC")['authority']['snac']
+    assert @snac_code, generated(:snac => @snac_code)['authority']['snac']
   end
 
   test "generated hash for result page has an lgil code for the authority" do
-    assert "8", generated(:snac => "00BC")['authority']['lgils'].first['code']
+    assert "8", generated(:snac => @snac_code)['authority']['lgils'].first['code']
   end
 
   test "generated hash for result page has an lgil url for the authority" do
-    assert "http://authority.gov.uk/service", generated(:snac => "00BC")['authority']['lgils'].first['url']
+    assert "http://authority.gov.uk/service", generated(:snac => @snac_code)['authority']['lgils'].first['url']
   end
 end

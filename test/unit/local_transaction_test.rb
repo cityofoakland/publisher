@@ -10,38 +10,41 @@ class LocalTransactionTest < ActiveSupport::TestCase
   end
   alias_method :authority, :create_authority
 
-  test "looks up the LGSL before validating a new record" do
-    LocalTransactionsSource.expects(:find_current_lgsl).with("1").returns(lgsl)
-    lt = LocalTransaction.new(lgsl_code: "1", name: "Transaction", slug: "slug")
-    assert lt.valid?
+  context "a local transaction for the 'bins' service" do
+    setup do
+      @lgsl_code = 'bins'
+      @bins_transaction = LocalTransaction.new(lgsl_code: @lgsl_code, name: "Transaction", slug: "slug")
+    end
+    
+    context "an authority exists providing 'bins' service" do
+      setup do
+        @county_council = LocalAuthority.create(
+          name: "Some County Council", 
+          snac: '00AA', 
+          local_directgov_id: 1, 
+          tier: 'county',
+          homepage_url: 'http://some.county.council.gov/',
+          contact_url: 'http://some.county.council.gov/contact.html'
+        )
+        @county_council.local_service_urls.create!(
+          url: 'http://some.county.council.gov/do.html',
+          lgsl_code: @lgsl_code,
+          lgil_code: 0)
+      end
+    
+      should "report that that authority provides the bins service" do
+        assert @bins_transaction.service_provided_by?(@county_council.snac)
+      end
+
+      should "report that some other authority does not provide the bins service" do
+        assert ! @bins_transaction.service_provided_by?('some_other_snac')
+      end
+    end
+
+    should "report the search_format to be 'transaction'" do
+      assert_equal "transaction", @bins_transaction.search_format
+    end
   end
-
-  test "doesn't bother looking up the LGSL before validating an existing record" do
-    LocalTransactionsSource.expects(:find_current_lgsl).never
-
-    lt = LocalTransaction.new(lgsl_code: "1", name: "Transaction", slug: "slug")
-    lt.save(validate: false)
-    assert lt.valid?
-  end
-
-  test "can verify whether an authority provides the transaction service, given its SNAC" do
-    lt = LocalTransaction.new(lgsl_code: "1", name: "Transaction", slug: "slug")
-    lt.stubs(:lgsl).returns(lgsl)
-    create_authority("45UB")
-
-    assert lt.verify_snac("45UB")
-  end
-
-  test "can verify that an authority does not provide the transaction service" do
-    lt = LocalTransaction.new(lgsl_code: "1", name: "Transaction", slug: "slug")
-    lt.stubs(:lgsl).returns(lgsl)
-    create_authority("45UB")
-
-    assert !lt.verify_snac("00BC")
-  end
-
-  test "local transaction reports itself as a transaction for search" do
-    lt = LocalTransaction.new(lgsl_code: "1", name: "Transaction", slug: "slug")
-    assert_equal "transaction", lt.search_format
-  end
+  
+  should_eventually "On save, validate that a LocalService exists for that lgsl_code"
 end
