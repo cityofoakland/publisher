@@ -4,6 +4,7 @@ class LocalTransaction < Publication
   field         :lgsl_code, type: String
 
   validates_presence_of :lgsl_code
+  validate      :valid_lgsl_code
 
   def self.edition_class
     LocalTransactionEdition
@@ -14,11 +15,17 @@ class LocalTransaction < Publication
   end
   
   def service
-    LocalService.where(lgsl_code: lgsl_code).first
+    LocalService.find_by_lgsl_code(lgsl_code)
   end
 
   def service_provided_by?(snac)
-    authority = LocalAuthority.where(snac: snac).first
-    authority && authority.local_interactions.where(lgsl_code: lgsl_code).any?
+    authority = LocalAuthority.find_by_snac(snac)
+    authority && authority.provides_service?(lgsl_code)
+  end
+  
+  def valid_lgsl_code
+    if ! LocalService.find_by_lgsl_code(lgsl_code)
+      errors.add(:lgsl_code, "Invalid LGSL Code: '#{lgsl_code}'")
+    end
   end
 end

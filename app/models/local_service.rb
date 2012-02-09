@@ -10,16 +10,17 @@ class LocalService
   validates_uniqueness_of :lgsl_code
   validates :providing_tier, :inclusion => { :in => [%w{county unitary}, %w{district unitary}, %w{district unitary county}] }
   
-  def preferred_interaction(snac_list)
-    provider = preferred_provider(snac_list)
-    if provider
-      available_interactions = provider.interactions_for(lgsl_code)
-      choose_preferred_interaction_from(available_interactions)
-    end
+  def self.find_by_lgsl_code(lgsl_code)
+    LocalService.where(lgsl_code: lgsl_code).first
+  end
+    
+  def preferred_interaction(snac_or_snac_list)
+    provider = preferred_provider(snac_or_snac_list)
+    provider && provider.preferred_interaction_for(lgsl_code)
   end
   
-  def preferred_provider(snac_list)
-    snac_list = [*snac_list]
+  def preferred_provider(snac_or_snac_list)
+    snac_list = [*snac_or_snac_list]
     providers = LocalAuthority.for_snacs(snac_list)
     select_tier(providers)
   end
@@ -27,21 +28,13 @@ class LocalService
   def provided_by
     LocalAuthority.where('local_interactions.lgsl_code' => lgsl_code).any_in(tier: providing_tier)
   end
+  
+private
 
   def select_tier(authorities)
     by_tier = Hash[authorities.map {|a| [a.tier, a]}]
-    case providing_tier
-    when %w{county unitary} then
-      by_tier['county'] || by_tier['unitary']
-    when %w{district unitary} then
-      by_tier['district'] || by_tier['unitary']
-    else
-      by_tier['district'] || by_tier['unitary'] || by_tier['county']
-    end
+    tier = providing_tier.find { |t| by_tier.has_key?(t) }
+    tier && by_tier[tier]
   end
   
-  def choose_preferred_interaction_from(interactions)
-    interactions.not_in(lgil_code: LocalInteraction::LGIL_CODE_PROVIDING_INFORMATION).first ||
-      interactions.all_in(lgil_code: LocalInteraction::LGIL_CODE_PROVIDING_INFORMATION).first
-  end
 end

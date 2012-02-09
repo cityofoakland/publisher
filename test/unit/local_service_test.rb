@@ -5,7 +5,7 @@ class LocalServiceTest < ActiveSupport::TestCase
   include LocalServicesHelper
   
   def assert_same_authorities(expected, actual, message = nil)
-    assert_equal expected.map(&:snac), actual.map(&:snac), message
+    assert_equal expected.map(&:snac).sort, actual.map(&:snac).sort, message
   end
   
   def assert_excluded(excluded, actual, message = nil)
@@ -56,7 +56,7 @@ class LocalServiceTest < ActiveSupport::TestCase
     context "listing all providers" do
       setup do
         other_service = @service.lgsl_code.to_i + 1
-        add_service(@county_council, other_service)
+        add_service_interaction(@county_council, other_service)
         make_authority('county', snac: 'CC00', lgsl: other_service)
         make_authority('unitary', snac: 'CC01', lgsl: other_service)
       end
