@@ -26,7 +26,7 @@ class LocalTransactionTest < ActiveSupport::TestCase
           homepage_url: 'http://some.county.council.gov/',
           contact_url: 'http://some.county.council.gov/contact.html'
         )
-        @county_council.local_service_urls.create!(
+        @county_council.local_interactions.create!(
           url: 'http://some.county.council.gov/do.html',
           lgsl_code: @lgsl_code,
           lgil_code: 0)

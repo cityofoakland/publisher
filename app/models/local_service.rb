@@ -10,18 +10,22 @@ class LocalService
   validates_uniqueness_of :lgsl_code
   validates :providing_tier, :inclusion => { :in => [%w{county unitary}, %w{district unitary}, %w{district unitary county}] }
   
-  def preferred_url(snac_list)
-    providers = LocalAuthority.for_snacs(snac_list)
-    provider = select_tier(providers)
+  def preferred_interaction(snac_list)
+    provider = preferred_provider(snac_list)
     if provider
-      urls = provider.local_service_urls.all_in(lgsl_code: lgsl_code)
-      local_service_url = choose_preferred_url_from(urls)
-      local_service_url && local_service_url.url
+      available_interactions = provider.interactions_for(lgsl_code)
+      choose_preferred_interaction_from(available_interactions)
     end
   end
   
+  def preferred_provider(snac_list)
+    snac_list = [*snac_list]
+    providers = LocalAuthority.for_snacs(snac_list)
+    select_tier(providers)
+  end
+  
   def provided_by
-    LocalAuthority.where('local_service_urls.lgsl_code' => lgsl_code).any_in(tier: providing_tier)
+    LocalAuthority.where('local_interactions.lgsl_code' => lgsl_code).any_in(tier: providing_tier)
   end
 
   def select_tier(authorities)
@@ -36,8 +40,8 @@ class LocalService
     end
   end
   
-  def choose_preferred_url_from(urls)
-    urls.not_in(lgil_code: LocalServiceUrl::LGIL_CODE_PROVIDING_INFORMATION).first ||
-      urls.all_in(lgil_code: LocalServiceUrl::LGIL_CODE_PROVIDING_INFORMATION).first
+  def choose_preferred_interaction_from(interactions)
+    interactions.not_in(lgil_code: LocalInteraction::LGIL_CODE_PROVIDING_INFORMATION).first ||
+      interactions.all_in(lgil_code: LocalInteraction::LGIL_CODE_PROVIDING_INFORMATION).first
   end
 end

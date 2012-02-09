@@ -1,6 +1,6 @@
 require 'csv'
 
-class LocalServiceUrl
+class LocalInteraction
   include Mongoid::Document
 
   LGIL_CODE_PROVIDING_INFORMATION = 8

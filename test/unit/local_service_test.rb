@@ -1,26 +1,8 @@
 require 'test_helper'
+require_relative 'helpers/local_services_helper'
 
 class LocalServiceTest < ActiveSupport::TestCase
-  
-  def make_authority(tier, options)
-    @next_id ||= 1 
-    @next_id += 1
-    authority = LocalAuthority.create!(
-      name: "Some #{tier.capitalize} Council", 
-      snac: options[:snac], 
-      local_directgov_id: @next_id, 
-      tier: tier
-    )
-    add_service(authority, options[:lgsl])
-    authority
-  end
-  
-  def add_service(existing_authority, lgsl_code)
-    existing_authority.local_service_urls.create!(
-      url: "http://some.#{existing_authority.tier}.council.gov/do-#{lgsl_code}.html",
-      lgsl_code: lgsl_code,
-      lgil_code: 0)
-  end
+  include LocalServicesHelper
   
   def assert_same_authorities(expected, actual, message = nil)
     assert_equal expected.map(&:snac), actual.map(&:snac), message
@@ -44,14 +26,14 @@ class LocalServiceTest < ActiveSupport::TestCase
 
   context "service is provided by county/unitary authority" do
     setup do
-      @service = LocalService.create(lgsl_code: @lgsl_code, providing_tier: %w{county unitary})
+      @service = LocalService.create!(lgsl_code: @lgsl_code, providing_tier: %w{county unitary})
     end
     
     context "location has county and district councils" do
       setup { @councils = [@county_council.snac, @district_council.snac] }
     
       should "return the url from the county council" do
-        assert_equal "http://some.county.council.gov/do-123.html", @service.preferred_url(@councils)
+        assert_equal "http://some.county.council.gov/do-123.html", @service.preferred_interaction(@councils).url
       end
     end
     
@@ -59,7 +41,7 @@ class LocalServiceTest < ActiveSupport::TestCase
       setup { @councils = [@unitary_authority.snac] }
 
       should "return the url from the unitary authority" do      
-        assert_equal "http://some.unitary.council.gov/do-123.html", @service.preferred_url(@councils)
+        assert_equal "http://some.unitary.council.gov/do-123.html", @service.preferred_interaction(@councils).url
       end
     end
 
@@ -67,7 +49,7 @@ class LocalServiceTest < ActiveSupport::TestCase
       setup { @councils = [@district_council.snac] }
     
       should "return nil" do
-        assert_nil @service.preferred_url(@councils)
+        assert_nil @service.preferred_interaction(@councils)
       end
     end
 
@@ -92,14 +74,14 @@ class LocalServiceTest < ActiveSupport::TestCase
   
   context "service is provided by district/unitary authority" do
     setup do
-      @service = LocalService.create(lgsl_code: @lgsl_code, providing_tier: %w{district unitary})
+      @service = LocalService.create!(lgsl_code: @lgsl_code, providing_tier: %w{district unitary})
     end
     
     context "location has county and district councils" do
       setup { @councils = [@county_council.snac, @district_council.snac] }
     
       should "return the url from the district council" do
-        assert_equal "http://some.district.council.gov/do-123.html", @service.preferred_url(@councils)
+        assert_equal "http://some.district.council.gov/do-123.html", @service.preferred_interaction(@councils).url
       end
     end
     
@@ -107,7 +89,7 @@ class LocalServiceTest < ActiveSupport::TestCase
       setup { @councils = [@unitary_authority.snac] }
 
       should "return the url from the unitary authority" do      
-        assert_match "http://some.unitary.council.gov/do-123.html", @service.preferred_url(@councils)
+        assert_match "http://some.unitary.council.gov/do-123.html", @service.preferred_interaction(@councils).url
       end
     end
 
@@ -115,7 +97,7 @@ class LocalServiceTest < ActiveSupport::TestCase
       setup { @councils = [@county_council.snac] }
     
       should "return nil" do
-        assert_nil @service.preferred_url(@councils)
+        assert_nil @service.preferred_interaction(@councils)
       end
     end
 
@@ -128,14 +110,14 @@ class LocalServiceTest < ActiveSupport::TestCase
   
   context "service is provided by both tiers" do
     setup do
-      @service = LocalService.create(lgsl_code: @lgsl_code, providing_tier: %w{district unitary county})
+      @service = LocalService.create!(lgsl_code: @lgsl_code, providing_tier: %w{district unitary county})
     end
 
     context "location has county and district councils" do
       setup { @councils = [@county_council.snac, @district_council.snac] }
     
       should "returns the url of the service provided by the district council" do
-        url = @service.preferred_url(@councils)
+        url = @service.preferred_interaction(@councils).url
         assert_equal "http://some.district.council.gov/do-123.html", url
       end
     end
@@ -144,7 +126,7 @@ class LocalServiceTest < ActiveSupport::TestCase
       setup { @councils = [@unitary_authority.snac] }
     
       should "returns the url of the service provided by the unitary authority" do
-        url = @service.preferred_url(@councils)
+        url = @service.preferred_interaction(@councils).url
         assert_equal "http://some.unitary.council.gov/do-123.html", url
       end
     end
@@ -155,7 +137,7 @@ class LocalServiceTest < ActiveSupport::TestCase
       setup { @councils = [@county_council.snac] }
       
       should "return the url of the service provided by the county council" do
-        url = @service.preferred_url(@councils)
+        url = @service.preferred_interaction(@councils).url
         assert_equal "http://some.county.council.gov/do-123.html", url
       end
     end

@@ -19,6 +19,6 @@ class LocalTransaction < Publication
 
   def service_provided_by?(snac)
     authority = LocalAuthority.where(snac: snac).first
-    authority && authority.local_service_urls.where(lgsl_code: lgsl_code).any?
+    authority && authority.local_interactions.where(lgsl_code: lgsl_code).any?
   end
 end
