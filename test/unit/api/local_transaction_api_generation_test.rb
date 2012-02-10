@@ -6,7 +6,7 @@ class LocalTransactionApiGenerationTest < ActiveSupport::TestCase
 
   setup do
     @updated_time = Time.now
-    @lgsl_code = '149'
+    @lgsl_code = 149
     @service = LocalService.create!(lgsl_code: @lgsl_code, providing_tier: %w{county unitary})
     @county_council = make_authority('county', snac: 'AA00', lgsl: @lgsl_code)
     
@@ -42,7 +42,7 @@ class LocalTransactionApiGenerationTest < ActiveSupport::TestCase
       
       expected_interaction_description = {
         'url' => "http://some.county.council.gov/do-#{@lgsl_code}.html",
-        'lgil_code' => "0",
+        'lgil_code' => 0,
         'lgsl_code' => @lgsl_code,
         'authority' => {
           'name' => @county_council.name,

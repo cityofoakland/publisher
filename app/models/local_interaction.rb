@@ -5,8 +5,8 @@ class LocalInteraction
 
   LGIL_CODE_PROVIDING_INFORMATION = 8
   
-  field :lgsl_code, type: String
-  field :lgil_code, type: String
+  field :lgsl_code, type: Integer
+  field :lgil_code, type: Integer
   field :url, type: String
 
   embedded_in :local_authority

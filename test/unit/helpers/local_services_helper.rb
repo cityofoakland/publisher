@@ -8,7 +8,7 @@ module LocalServicesHelper
       local_directgov_id: @next_id, 
       tier: tier
     )
-    add_service_interaction(authority, options[:lgsl])
+    add_service_interaction(authority, options[:lgsl]) if options[:lgsl]
     authority
   end
   

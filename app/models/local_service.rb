@@ -3,7 +3,8 @@ require 'csv'
 class LocalService
   include Mongoid::Document
 
-  field :lgsl_code, type: String
+  field :description, type: String
+  field :lgsl_code, type: Integer
   field :providing_tier, type: Array
 
   validates_presence_of :lgsl_code, :providing_tier

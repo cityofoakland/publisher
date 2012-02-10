@@ -1,7 +1,7 @@
 class LocalTransaction < Publication
   embeds_many   :editions,  class_name: 'LocalTransactionEdition', inverse_of: :local_transaction
 
-  field         :lgsl_code, type: String
+  field         :lgsl_code, type: Integer
 
   validates_presence_of :lgsl_code
   validate      :valid_lgsl_code
