@@ -26,7 +26,6 @@ gem 'plek', '~> 0'
 gem 'gelf'
 gem 'graylog2_exceptions'
 gem 'rest-client'
-gem 'differ'
 
 if ENV['MARPLES_DEV']
   gem 'marples', :path => '../marples'
@@ -69,7 +68,6 @@ else
 end
 
 gem 'exception_notification', '~> 2.4.1', :require => 'exception_notifier'
-gem 'state_machine'
 
 gem 'lockfile'
 gem 'whenever'

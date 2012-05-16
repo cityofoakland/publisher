@@ -1,5 +1,7 @@
 require 'test_helper'
 
+# DO NOT DELETE ME
+
 class UserTest < ActiveSupport::TestCase
   test "creating a transaction with the initial details creates a valid transaction" do
     user = User.create(:name => "bob")
