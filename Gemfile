@@ -17,10 +17,6 @@ end
 gem 'rails', '3.1.3'
 gem 'aws-ses', :require => 'aws/ses'
 
-gem "mongoid", "~> 2.3"
-gem "mongo", "1.5.2"
-gem "bson_ext", "1.5.2"
-gem "bson", "1.5.2"
 gem 'erubis'
 gem 'plek', '~> 0'
 gem 'gelf'
@@ -36,7 +32,7 @@ end
 gem 'null_logger'
 gem 'rummageable'
 gem 'daemonette', :git => 'git@github.com:alphagov/daemonette.git'
-gem 'gds-api-adapters', '~> 0.0.23'
+gem 'gds-api-adapters'
 
 gem 'rest-client'
 
@@ -48,6 +44,8 @@ gem 'has_scope'
 gem 'stomp', '1.1.9'
 gem 'null_logger'
 gem 'router-client', '2.0.3', require: 'router/client'
+
+gem "govuk_content_models"
 
 if ENV['SLIMMER_DEV']
   gem 'slimmer', :path => '../slimmer'
