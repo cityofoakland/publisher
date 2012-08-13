@@ -238,6 +238,8 @@ GEM
     rest-client (1.6.7)
       mime-types (>= 1.16)
     rubyzip (0.9.8)
+    sanitize (2.0.3)
+      nokogiri (>= 1.4.4, < 1.6)
     selenium-webdriver (2.21.2)
       childprocess (>= 0.2.5)
       ffi (~> 1.0)
@@ -325,6 +327,7 @@ DEPENDENCIES
   plek (= 0.1.24)
   rails (= 3.2.7)
   rest-client (= 1.6.7)
+  sanitize (= 2.0.3)
   shoulda
   simplecov (~> 0.6.4)
   simplecov-rcov (~> 0.2.3)
