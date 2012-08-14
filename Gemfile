@@ -33,6 +33,7 @@ gem 'kaminari', '0.13.0'
 gem 'lograge', '0.0.6'
 
 gem 'sanitize', '2.0.3'
+gem 'htmlentities', '4.3.1'
 
 if ENV['CONTENT_MODELS_DEV']
   gem "govuk_content_models", :path => '../govuk_content_models'
