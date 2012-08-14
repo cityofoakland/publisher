@@ -1,7 +1,7 @@
 class Admin::EditionsController < Admin::BaseController
   actions :create, :update, :destroy
-  defaults :resource_class => Edition, :collection_name => 'editions', :instance_name => 'resource'
-  before_filter :setup_view_paths, :except => [:index, :new, :create]
+  defaults resource_class: Edition, collection_name: 'editions', instance_name: 'resource'
+  before_filter :setup_view_paths, except: [:index, :new, :create]
 
   def index
     redirect_to admin_root_path
@@ -19,11 +19,11 @@ class Admin::EditionsController < Admin::BaseController
 
     if @publication.persisted?
       redirect_to admin_edition_path(@publication),
-        :notice => "#{description(@publication)} successfully created"
+        notice: "#{description(@publication)} successfully created"
       return
     else
       setup_view_paths_for(@publication)
-      render :action => "new"
+      render action: "new"
     end
   end
 
@@ -33,11 +33,11 @@ class Admin::EditionsController < Admin::BaseController
     if new_edition and new_edition.save
       update_assignment new_edition, assigned_to_id
       redirect_to params[:return_to] and return if params[:return_to]
-      redirect_to admin_edition_path(new_edition), :notice => 'New edition created'
+      redirect_to admin_edition_path(new_edition), notice: 'New edition created'
     else
       alert = 'Failed to create new edition'
       alert += new_edition ? ": #{new_edition.errors.inspect}" : ": couldn't initialise"
-      redirect_to admin_edition_path(resource), :alert => alert
+      redirect_to admin_edition_path(resource), alert: alert
     end
   end
 
@@ -52,34 +52,34 @@ class Admin::EditionsController < Admin::BaseController
       failure.html {
         @resource = resource
         flash.now[:alert] = "We had some problems saving. Please check the form below."
-        render :template => "show"
+        render template: "show"
       }
       success.json {
         update_assignment resource, assigned_to_id
-        render :json => resource
+        render json: resource
       }
-      failure.json { render :json => resource.errors, :status=>406 }
+      failure.json { render json: resource.errors, status: 406 }
     end
   end
 
   def destroy
     if resource.can_destroy?
       destroy! do
-        redirect_to admin_root_url, :notice => "#{description(resource)} destroyed"
+        redirect_to admin_root_url, notice: "#{description(resource)} destroyed"
         return
       end
     else
       redirect_to admin_edition_path(resource),
-        :notice => "Cannot delete a #{description(resource).downcase} that has ever been published."
+        notice: "Cannot delete a #{description(resource).downcase} that has ever been published."
       return
     end
   end
 
   def progress
     if current_user.progress(resource, params[:activity].dup)
-      redirect_to admin_edition_path(resource), :notice => success_message(params[:activity][:request_type])
+      redirect_to admin_edition_path(resource), notice: success_message(params[:activity][:request_type])
     else
-      redirect_to admin_edition_path(resource), :alert => failure_message(params[:activity][:request_type])
+      redirect_to admin_edition_path(resource), alert: failure_message(params[:activity][:request_type])
     end
   end
 
