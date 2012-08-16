@@ -1,3 +1,5 @@
+require 'param_sanitizer'
+
 class Admin::BaseController < InheritedResources::Base
   before_filter :authenticate_user!
   before_filter :require_signin_permission!
@@ -25,5 +27,9 @@ class Admin::BaseController < InheritedResources::Base
 
   def description(r)
     r.format.underscore.humanize
+  end
+
+  def params
+    @_params ||= ParamSanitizer.new(request.parameters).sanitize
   end
 end

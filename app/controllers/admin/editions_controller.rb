@@ -15,7 +15,7 @@ class Admin::EditionsController < Admin::BaseController
 
   def create
     class_identifier = params[:edition].delete(:kind).to_sym
-    @publication = current_user.create_edition(class_identifier, params[:edition])
+    @publication = current_user.create_edition(class_identifier, resource_params.first)
 
     if @publication.persisted?
       redirect_to admin_edition_path(@publication),

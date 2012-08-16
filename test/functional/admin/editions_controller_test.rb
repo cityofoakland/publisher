@@ -214,4 +214,18 @@ class Admin::EditionsControllerTest < ActionController::TestCase
       delete :destroy, id: @programme.id
     end
   end
+
+  test "creating an edition filters out HTML" do
+    lgsl_code = 800
+    local_service = FactoryGirl.create(:local_service, :lgsl_code=>lgsl_code)
+
+    post :create, "edition" => {
+      "kind"          => "local_transaction",
+      "lgsl_code"     => lgsl_code,
+      "panopticon_id" => "827",
+      "title"         => "a <a href=\"javascript:alert('hello'); return false;\">title</a>"
+    }
+
+    assert_equal 'a title', Edition.last.title
+  end
 end
