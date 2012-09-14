@@ -16,7 +16,7 @@ class Admin::EditionsControllerTest < ActionController::TestCase
         owning_app: "publisher")
     @programme = ProgrammeEdition.create(title: "test", slug: "test2", panopticon_id: artefact2.id)
 
-    stub_request(:delete, "#{Plek.current.find("arbiter")}/slugs/test").to_return(:status => 200)
+    stub_request(:delete, "#{Plek.current.find("panopticon")}/slugs/test").to_return(:status => 200)
   end
 
   test "it renders the lgsl edit form successfully if creation fails" do

@@ -3,7 +3,7 @@
 # class Admin::TransactionsControllerTest < ActionController::TestCase
 #
 #   setup do
-#     stub_request(:delete, "#{Plek.current.find("arbiter")}/slugs/test").to_return(:status => 200)
+#     stub_request(:delete, "#{Plek.current.find("panopticon")}/slugs/test").to_return(:status => 200)
 #     panopticon_has_metadata(
 #       "id" => "test",
 #       "name" => "FOOOO"
