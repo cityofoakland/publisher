@@ -13,7 +13,8 @@ class LicenceIdentifierMigrator
       licence_identifier = licence_mappings[licence_edition.licence_identifier.to_i]
       if licence_identifier
         licence_edition.licence_identifier = licence_identifier
-        if licence_edition.save(validate: false) 
+        if LicenceEdition.where(licence_identifier: licence_identifier).size == 0 
+          licence_edition.save(validate: false) 
           counter += 1
         end
       end
